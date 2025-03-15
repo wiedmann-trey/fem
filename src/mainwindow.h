@@ -8,7 +8,7 @@ class MainWindow : public QWidget
     Q_OBJECT
 
 public:
-    MainWindow();
+    MainWindow(QString config);
     ~MainWindow();
 
 private:

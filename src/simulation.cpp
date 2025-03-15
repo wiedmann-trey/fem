@@ -1,31 +1,24 @@
 #include "simulation.h"
 #include "graphics/meshloader.h"
+#include "extractfaces.h"
 
 #include <iostream>
 
 using namespace Eigen;
 
-Simulation::Simulation() {}
+Simulation::Simulation(QString config) : m_config(config) {}
 
 void Simulation::init()
 {
-    // STUDENTS: This code loads up the tetrahedral mesh in 'example-meshes/single-tet.mesh'
-    //    (note: your working directory must be set to the root directory of the starter code
-    //    repo for this file to load correctly). You'll probably want to instead have this code
-    //    load up a tet mesh based on e.g. a file path specified with a command line argument.
+    QSettings settings(m_config, QSettings::IniFormat );
+    QString meshFile = settings.value("IO/meshfile").toString();
+    m_timestep = settings.value("Constants/timestep").toDouble();
+
     std::vector<Vector3d> vertices;
     std::vector<Vector4i> tets;
-    if (MeshLoader::loadTetMesh(":/example-meshes/single-tet.mesh", vertices, tets)) {
-        // STUDENTS: This code computes the surface mesh of the loaded tet mesh, i.e. the faces
-        //    of tetrahedra which are on the exterior surface of the object. Right now, this is
-        //    hard-coded for the single-tet mesh. You'll need to implement surface mesh extraction
-        //    for arbitrary tet meshes. Think about how you can identify which tetrahedron faces
-        //    are surface faces...
+    if (MeshLoader::loadTetMesh(meshFile.toStdString(), vertices, tets)) {
         std::vector<Vector3i> faces;
-        faces.emplace_back(1, 0, 2);
-        faces.emplace_back(2, 0, 3);
-        faces.emplace_back(3, 1, 2);
-        faces.emplace_back(3, 0, 1);
+        extractFaces(tets, vertices, faces);
         m_shape.init(vertices, faces, tets);
     }
     m_shape.setModelMatrix(Affine3f(Eigen::Translation3f(0, 2, 0)));
@@ -40,12 +33,19 @@ void Simulation::update(double seconds)
     //   simulation mesh, and it should then call m_shape.setVertices to update the display with those
     //   newly-updated vertices.
 
-    // STUDENTS: As currently written, the program will just continually compute simulation timesteps as long
-    //    as the program is running (see View::tick in view.cpp) . You might want to e.g. add a hotkey for pausing
-    //    the simulation, and perhaps start the simulation out in a paused state.
+    m_seconds_since_last_step += seconds;
 
-    // Note that the "seconds" parameter represents the amount of time that has passed since
-    // the last update
+    int n_steps = m_seconds_since_last_step / m_timestep;
+    m_seconds_since_last_step -= n_steps*m_timestep;
+
+    for(int i = 0; i < n_steps; i++) {
+        step();
+    }
+}
+
+void Simulation::step()
+{
+
 }
 
 void Simulation::draw(Shader *shader)

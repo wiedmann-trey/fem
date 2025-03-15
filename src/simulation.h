@@ -1,13 +1,14 @@
 #pragma once
 
 #include "graphics/shape.h"
+#include <QSettings>
 
 class Shader;
 
 class Simulation
 {
 public:
-    Simulation();
+    Simulation(QString config);
 
     void init();
 
@@ -18,7 +19,12 @@ public:
     void toggleWire();
 private:
     Shape m_shape;
+    QString m_config;
+    double m_seconds_since_last_step;
+    double m_timestep;
 
     Shape m_ground;
     void initGround();
+
+    void step();
 };

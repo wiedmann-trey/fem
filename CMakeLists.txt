@@ -49,6 +49,11 @@ add_executable(${PROJECT_NAME}
 
     util/tiny_obj_loader.h
     util/unsupportedeigenthing/OpenGLSupport
+    src/extractfaces.h
+    src/extractfaces.cpp
+    src/femsystem.h src/femsystem.cpp
+    src/midpoint.h
+    src/femobject.h src/femobject.cpp
 )
 
 # GLEW: this creates its library and allows you to `#include "GL/glew.h"`
@@ -80,6 +85,7 @@ qt6_add_resources(${PROJECT_NAME} "Resources"
         resources/shaders/shader.frag
         resources/shaders/shader.vert
         example-meshes/single-tet.mesh
+        example-meshes/ellipsoid.mesh
 )
 
 # GLEW: this provides support for Windows (including 64-bit)

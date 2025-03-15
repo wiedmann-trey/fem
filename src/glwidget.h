@@ -18,7 +18,7 @@ class GLWidget : public QOpenGLWidget
     Q_OBJECT
 
 public:
-    GLWidget(QWidget *parent = nullptr);
+    GLWidget(QString settings, QWidget *parent = nullptr);
     ~GLWidget();
 
 private:

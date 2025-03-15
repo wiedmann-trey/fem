@@ -9,11 +9,11 @@
 
 using namespace std;
 
-GLWidget::GLWidget(QWidget *parent) :
+GLWidget::GLWidget(QString config, QWidget *parent) :
     QOpenGLWidget(parent),
     m_deltaTimeProvider(),
     m_intervalTimer(),
-    m_sim(),
+    m_sim(config),
     m_camera(),
     m_shader(),
     m_forward(),

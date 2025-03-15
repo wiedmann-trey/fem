@@ -1,9 +1,9 @@
 #include "mainwindow.h"
 #include <QHBoxLayout>
 
-MainWindow::MainWindow()
+MainWindow::MainWindow(QString config)
 {
-    glWidget = new GLWidget();
+    glWidget = new GLWidget(config);
 
     QHBoxLayout *container = new QHBoxLayout;
     container->addWidget(glWidget);
