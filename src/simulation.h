@@ -2,6 +2,7 @@
 
 #include "graphics/shape.h"
 #include <QSettings>
+#include "femsystem.h"
 
 class Shader;
 
@@ -18,13 +19,11 @@ public:
 
     void toggleWire();
 private:
-    Shape m_shape;
     QString m_config;
     double m_seconds_since_last_step;
     double m_timestep;
 
+    FEMSystem m_system;
     Shape m_ground;
     void initGround();
-
-    void step();
 };

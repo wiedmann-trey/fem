@@ -13,13 +13,16 @@ public:
 
     VectorXd getState();
     VectorXd evalDerivative();
-    void setState(VectorXd newState);
-    void addObject(FEMObject object);
-    void renderVertices();
+    void setState(VectorXd &newState);
+    void addObject(FEMObject &object);
+    void updateVertices();
+    void draw(Shader *shader);
+    void toggleWire();
 
 private:
 
     std::vector<FEMObject> m_objects;
+    int m_state_size;
 };
 
 

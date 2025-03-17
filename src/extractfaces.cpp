@@ -66,12 +66,13 @@ std::vector<Vector3i> getTetrahedronFaces(Vector4i tet, std::vector<Vector3d> &v
     return faces;
 }
 
-// extracts outside faces of mesh into faces
-void extractFaces(std::vector<Vector4i> &tets, std::vector<Vector3d> &verts, std::vector<Vector3i> &faces) {
+// extracts outside faces of mesh into outsideFaces, the properly oriented faces of the tets are put in tetFullFaces
+void extractFaces(std::vector<Vector4i> &tets, std::vector<Vector3d> &verts, std::vector<Vector3i> &outsideFaces, std::vector<std::vector<Vector3i>> &tetFullFaces) {
     std::unordered_set<Vector3i, Vector3iHash, Vector3iEqual> faceSet;
 
     for(Vector4i &tet : tets) {
         std::vector<Vector3i> tetFaces = getTetrahedronFaces(tet, verts);
+        tetFullFaces.push_back(tetFaces);
 
         for(Vector3i &face : tetFaces) {
             if(faceSet.contains(face)) {
@@ -83,6 +84,6 @@ void extractFaces(std::vector<Vector4i> &tets, std::vector<Vector3d> &verts, std
     }
 
     for(const Vector3i &face : faceSet) {
-        faces.push_back(face);
+        outsideFaces.push_back(face);
     }
 }

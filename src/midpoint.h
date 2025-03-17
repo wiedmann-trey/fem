@@ -3,7 +3,7 @@
 
 #include "femsystem.h"
 
-void midpointMethod(FEMSystem system, double delta_t) {
+void midpointMethod(FEMSystem &system, double delta_t) {
     VectorXd currentState = system.getState();
     VectorXd currentDerivative = system.evalDerivative();
 
