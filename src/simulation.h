@@ -3,6 +3,7 @@
 #include "graphics/shape.h"
 #include <QSettings>
 #include "femsystem.h"
+#include <graphics/camera.h>
 
 class Shader;
 
@@ -11,7 +12,7 @@ class Simulation
 public:
     Simulation(QString config);
 
-    void init();
+    void init(Camera &camera);
 
     void update(double seconds);
 
@@ -24,6 +25,4 @@ private:
     double m_timestep;
 
     FEMSystem m_system;
-    Shape m_ground;
-    void initGround();
 };

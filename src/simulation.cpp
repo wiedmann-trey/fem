@@ -9,7 +9,7 @@ using namespace Eigen;
 
 Simulation::Simulation(QString config) : m_config(config) {}
 
-void Simulation::init()
+void Simulation::init(Camera &camera)
 {
     m_system = FEMSystem();
 
@@ -61,6 +61,20 @@ void Simulation::init()
 
             props.gravity = grav;
 
+            if(settings.contains(current_object+"/velocity")) {
+                QStringList vectorStr = settings.value(current_object+"/velocity").toStringList();
+                props.initial_velocity = Vector3d(0,0,0);
+                if (vectorStr.size() != 3) {
+                    qWarning() << "Error: Velocity must have 3 values.";
+                } else {
+                    props.initial_velocity[0] = vectorStr[0].toDouble();
+                    props.initial_velocity[1] = vectorStr[1].toDouble();
+                    props.initial_velocity[2] = vectorStr[2].toDouble();
+                }
+            } else {
+                props.initial_velocity = Vector3d(0,0,0);
+            }
+
             if(settings.contains(current_object+"/density")) {
                 props.density = settings.value(current_object+"/density").toDouble();
             } else {
@@ -96,13 +110,54 @@ void Simulation::init()
             extractFaces(tets, vertices, outsideFaces, tetFullFaces);
             Shape shape;
             shape.init(vertices, outsideFaces, tets);
+            m_system.addShape(shape);
 
-            FEMObject object(vertices, tets, tetFullFaces, props, shape);
-            m_system.addObject(object);
+            bool use_collider = false;
+            std::shared_ptr<Collider> collider;
+            if(settings.contains(current_object+"/is_collider") && settings.value(current_object+"/is_collider").toBool()) {
+                collider = std::make_shared<Collider>(Collider(vertices, outsideFaces, obj_idx, false));
+
+                use_collider = true;
+                m_system.addCollider(collider);
+            }
+
+            if(settings.contains(current_object+"/simulate") && settings.value(current_object+"/simulate").toBool()) {
+                if(use_collider) {
+                    FEMObject object(vertices, tets, tetFullFaces, props, shape, collider);
+                    m_system.addObject(object);
+                } else {
+                    FEMObject object(vertices, tets, tetFullFaces, props, shape);
+                    m_system.addObject(object);
+                }
+            }
         }
     }
 
-    initGround();
+    // ground
+    std::vector<Vector3d> groundVerts;
+    std::vector<Vector3i> groundFaces;
+    groundVerts.emplace_back(-5, 0, -5);
+    groundVerts.emplace_back(-5, 0, 5);
+    groundVerts.emplace_back(5, 0, 5);
+    groundVerts.emplace_back(5, 0, -5);
+    groundFaces.emplace_back(0, 1, 2);
+    groundFaces.emplace_back(0, 2, 3);
+    Shape ground;
+    ground.init(groundVerts, groundFaces);
+    Collider ground_collider(groundVerts, groundFaces, -1, true);
+    m_system.addCollider(std::make_shared<Collider>(ground_collider));
+    m_system.addShape(ground);
+
+    if(settings.contains("Global/camera_pos")) {
+        QStringList vectorStr = settings.value("Global/camera_pos").toStringList();
+        if (vectorStr.size() != 3) {
+            qWarning() << "Error: Velocity must have 3 values.";
+        } else {
+            camera.setPosition(Vector3f(vectorStr[0].toFloat(), vectorStr[1].toFloat(), vectorStr[2].toFloat()));
+        }
+    }
+
+    m_system.init();
 }
 
 void Simulation::update(double seconds)
@@ -127,7 +182,6 @@ void Simulation::update(double seconds)
 void Simulation::draw(Shader *shader)
 {
     m_system.draw(shader);
-    m_ground.draw(shader);
 }
 
 void Simulation::toggleWire()
@@ -135,15 +189,8 @@ void Simulation::toggleWire()
     m_system.toggleWire();
 }
 
-void Simulation::initGround()
-{
-    std::vector<Vector3d> groundVerts;
-    std::vector<Vector3i> groundFaces;
-    groundVerts.emplace_back(-5, 0, -5);
-    groundVerts.emplace_back(-5, 0, 5);
-    groundVerts.emplace_back(5, 0, 5);
-    groundVerts.emplace_back(5, 0, -5);
-    groundFaces.emplace_back(0, 1, 2);
-    groundFaces.emplace_back(0, 2, 3);
-    m_ground.init(groundVerts, groundFaces);
-}
+// each stores vertices and faces. lets you update vertices
+// vertices are updated during setstate
+// after loading all objects to system, each object registers list of the other colliders
+// in config, each object can set as a collider or not, and same with whether or not a FEMObject
+// FEMSystem stores separate lists of colliders, objects, shapes to render

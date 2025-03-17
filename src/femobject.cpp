@@ -28,17 +28,22 @@ Vector3d calculateAreaWeightedNormals(int node_idx, Tetrahedron tet, std::vector
     return total;
 }
 
+FEMObject::FEMObject(std::vector<Vector3d> &vertices, std::vector<Vector4i> &tets, std::vector<std::vector<Vector3i>> &tetFullFaces, Properties properties, Shape &shape, std::shared_ptr<Collider> collider) : FEMObject(vertices, tets, tetFullFaces, properties, shape) {
+    m_has_collider = true;
+    m_own_collider = collider;
+}
+
 FEMObject::FEMObject(std::vector<Vector3d> &vertices, std::vector<Vector4i> &tets, std::vector<std::vector<Vector3i>> &tetFullFaces, Properties properties, Shape &shape) :
     m_shape(shape),
     m_properties(properties)
 {
-
+    m_has_collider = false;
     m_state_size = 0;
 
     for(Vector3d &v : vertices) {
         Node n;
         n.position = v;
-        n.velocity = Vector3d(0,3,0);
+        n.velocity = m_properties.initial_velocity;
         n.mass = 0;
         n.forceAccumulator = Vector3d(0,0,0);
         m_nodes.push_back(n);
@@ -95,6 +100,12 @@ FEMObject::FEMObject(std::vector<Vector3d> &vertices, std::vector<Vector4i> &tet
     }
 }
 
+void FEMObject::registerCollider(std::shared_ptr<Collider> collider) {
+    if(!m_has_collider || collider->getId() != m_own_collider->getId()) {
+        m_colliders.push_back(collider);
+    }
+}
+
 std::vector<Vector3d> FEMObject::getVertices() {
     std::vector<Vector3d> verts;
 
@@ -112,6 +123,10 @@ void FEMObject::setState(VectorXd &state) {
         idx+=3;
         n.velocity = state.segment(idx, 3);
         idx+=3;
+    }
+
+    if(m_has_collider) {
+        m_own_collider->setVertices(getVertices());
     }
 }
 
@@ -148,8 +163,8 @@ VectorXd FEMObject::evalDerivative() {
     for(Node &n : m_nodes) {
         n.forceAccumulator = Vector3d(0,0,0);
 
-        if(n.position.y() < 0) {
-            n.forceAccumulator += Vector3d(0, -40000*n.position.y(), 0);
+        for(std::shared_ptr<Collider> &c : m_colliders) {
+            n.forceAccumulator += c->resolveCollision(n.position);
         }
     }
 

@@ -61,7 +61,7 @@ void GLWidget::initializeGL()
 
     // Initialize the shader and simulation
     m_shader = new Shader(":/resources/shaders/shader.vert", ":/resources/shaders/shader.frag");
-    m_sim.init();
+
 
     // Initialize camera with a reasonable transform
     Eigen::Vector3f eye    = {0, 2, -5};
@@ -69,6 +69,8 @@ void GLWidget::initializeGL()
     m_camera.lookAt(eye, target);
     m_camera.setOrbitPoint(target);
     m_camera.setPerspective(120, width() / static_cast<float>(height()), 0.1, 50);
+
+    m_sim.init(m_camera);
 
     m_deltaTimeProvider.start();
     m_intervalTimer.start(1000 / 60);

@@ -54,6 +54,7 @@ add_executable(${PROJECT_NAME}
     src/femsystem.h src/femsystem.cpp
     src/midpoint.h
     src/femobject.h src/femobject.cpp
+    src/collider.h src/collider.cpp
 )
 
 # GLEW: this creates its library and allows you to `#include "GL/glew.h"`

@@ -42,6 +42,22 @@ void FEMSystem::addObject(FEMObject &object) {
     m_state_size += object.getStateSize();
 }
 
+void FEMSystem::addShape(Shape &shape) {
+    m_shapes.push_back(shape);
+}
+
+void FEMSystem::addCollider(std::shared_ptr<Collider> collider) {
+    m_colliders.push_back(collider);
+}
+
+void FEMSystem::init() {
+    for(std::shared_ptr<Collider> &c : m_colliders) {
+        for(FEMObject &o : m_objects) {
+            o.registerCollider(c);
+        }
+    }
+}
+
 void FEMSystem::updateVertices() {
     for(FEMObject &o : m_objects) {
         Shape s = o.getShape();
@@ -50,13 +66,13 @@ void FEMSystem::updateVertices() {
 }
 
 void FEMSystem::toggleWire() {
-    for(FEMObject &o : m_objects) {
-        o.getShape().toggleWireframe();
+    for(Shape &s : m_shapes) {
+        s.toggleWireframe();
     }
 }
 
 void FEMSystem::draw(Shader *shader) {
-    for(FEMObject &o : m_objects) {
-        o.getShape().draw(shader);
+    for(Shape &s : m_shapes) {
+        s.draw(shader);
     }
 }
