@@ -8,7 +8,7 @@ class Collider
 {
 public:
     Collider();
-    Collider(const std::vector<Eigen::Vector3d> &vertices, const std::vector<Eigen::Vector3i> &faces, int id, bool is_flat);
+    Collider(const std::vector<Eigen::Vector3d> &vertices, const std::vector<Eigen::Vector3i> &faces, int id, bool is_flat, double collision_penalty, double collision_epsilon);
 
     Eigen::Vector3d resolveCollision(Eigen::Vector3d point);
 
@@ -22,6 +22,8 @@ private:
 
     int m_id;
     bool m_is_flat;
+    double m_collision_penalty;
+    double m_collision_epsilon;
 
     double m_min_x, m_min_y, m_min_z;
     double m_max_x, m_max_y, m_max_z;

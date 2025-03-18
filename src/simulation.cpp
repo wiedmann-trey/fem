@@ -27,6 +27,20 @@ void Simulation::init(Camera &camera)
         grav = 1;
     }
 
+    double collision_penalty;
+    if(settings.contains("Global/collision_penalty")) {
+        collision_penalty = settings.value("Global/collision_penalty").toDouble();
+    } else {
+        collision_penalty = 8e7;
+    }
+
+    double collision_epsilon;
+    if(settings.contains("Global/collision_epsilon")) {
+        collision_epsilon = settings.value("Global/collision_epsilon").toDouble();
+    } else {
+        collision_epsilon = .005;
+    }
+
     for(int obj_idx = 0; settings.contains("Object"+std::to_string(obj_idx)+"/meshfile"); obj_idx++) {
         std::vector<Vector3d> vertices;
         std::vector<Vector4i> tets;
@@ -84,13 +98,13 @@ void Simulation::init(Camera &camera)
             if(settings.contains(current_object+"/incompressibility")) {
                 props.incompressibility = settings.value(current_object+"/incompressibility").toDouble();
             } else {
-                props.incompressibility = 10000;
+                props.incompressibility = 40000;
             }
 
             if(settings.contains(current_object+"/rigidity")) {
                 props.rigidity = settings.value(current_object+"/rigidity").toDouble();
             } else {
-                props.rigidity = 10000;
+                props.rigidity = 40000;
             }
 
             if(settings.contains(current_object+"/viscosity_1")) {
@@ -115,7 +129,7 @@ void Simulation::init(Camera &camera)
             bool use_collider = false;
             std::shared_ptr<Collider> collider;
             if(settings.contains(current_object+"/is_collider") && settings.value(current_object+"/is_collider").toBool()) {
-                collider = std::make_shared<Collider>(Collider(vertices, outsideFaces, obj_idx, false));
+                collider = std::make_shared<Collider>(Collider(vertices, outsideFaces, obj_idx, false, collision_penalty, collision_epsilon));
 
                 use_collider = true;
                 m_system.addCollider(collider);
@@ -144,7 +158,7 @@ void Simulation::init(Camera &camera)
     groundFaces.emplace_back(0, 2, 3);
     Shape ground;
     ground.init(groundVerts, groundFaces);
-    Collider ground_collider(groundVerts, groundFaces, -1, true);
+    Collider ground_collider(groundVerts, groundFaces, -1, true, collision_penalty, collision_epsilon);
     m_system.addCollider(std::make_shared<Collider>(ground_collider));
     m_system.addShape(ground);
 

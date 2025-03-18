@@ -11,7 +11,12 @@ Vector3d normal(const Vector3i &face, std::vector<Vector3d> &vertices) {
 
 Collider::Collider() {}
 
-Collider::Collider(const std::vector<Eigen::Vector3d> &vertices, const std::vector<Eigen::Vector3i> &faces, int id, bool is_flat) : m_id(id), m_is_flat(is_flat) {
+Collider::Collider(const std::vector<Eigen::Vector3d> &vertices, const std::vector<Eigen::Vector3i> &faces, int id, bool is_flat, double collision_penalty, double collision_epsilon) :
+    m_id(id),
+    m_is_flat(is_flat),
+    m_collision_penalty(collision_penalty),
+    m_collision_epsilon(collision_epsilon)
+{
     m_max_x = m_max_y = m_max_z = std::numeric_limits<double>::lowest();
     m_min_x = m_min_y = m_min_z = std::numeric_limits<double>::max();
 
@@ -67,7 +72,7 @@ Vector3d Collider::resolveCollision(Eigen::Vector3d point) {
 
         double d = (point - A).dot(normal);
 
-        if(d > 0 || std::abs(d) > .005) continue;
+        if(d > 0 || std::abs(d) > m_collision_epsilon) continue;
 
         Vector3d v0 = C-A;
         Vector3d v1 = B-A;
@@ -86,7 +91,7 @@ Vector3d Collider::resolveCollision(Eigen::Vector3d point) {
 
         if(u < 0 || v < 0 || u + v > 1) continue;
 
-        Vector3d force = 80000000 * std::abs(d)*normal;
+        Vector3d force = m_collision_penalty * std::abs(d)*normal;
         return force;
     }
 
