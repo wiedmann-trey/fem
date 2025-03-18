@@ -22,7 +22,13 @@ Object
 - viscosity_2 (Format: double) (Default: 100)
 
 ### Videos
+https://github.com/brown-cs-224/fem-wiedmann-trey/blob/master/example-video/simple_cube.mp4
 
+https://github.com/brown-cs-224/fem-wiedmann-trey/blob/master/example-video/static_collider.mp4
+
+https://github.com/brown-cs-224/fem-wiedmann-trey/blob/master/example-video/sphere_collision.mp4
+
+https://github.com/brown-cs-224/fem-wiedmann-trey/blob/master/example-video/stack.mp4
 ### Implementation Details
 
 - Surface extraction: Loop every face in the mesh, maintaining a set of ones we've seen so far. If the mesh only contains a face once, it's an outside face. I also use this code to ensure that the faces for each tetrahedron point outwards.
@@ -35,11 +41,11 @@ Object
 
 Please list the lines where the implementations of these features start:
 
-- [Surface extraction]()
-- [Internal Forces]()
-- [Collision Resolution]()
-- [Explicit Integration]()
-- [Extra: Deformable objects can collide with each other]()
+- [Surface extraction](https://github.com/brown-cs-224/fem-wiedmann-trey/blob/291e7c7fc2e9689cf3da7fe0e41f2cccb1b17bab/src/extractfaces.cpp#L69)
+- [Internal Forces](https://github.com/brown-cs-224/fem-wiedmann-trey/blob/291e7c7fc2e9689cf3da7fe0e41f2cccb1b17bab/src/femobject.cpp#L160)
+- [Collision Resolution](https://github.com/brown-cs-224/fem-wiedmann-trey/blob/291e7c7fc2e9689cf3da7fe0e41f2cccb1b17bab/src/collider.cpp#L62)
+- [Explicit Integration](https://github.com/brown-cs-224/fem-wiedmann-trey/blob/291e7c7fc2e9689cf3da7fe0e41f2cccb1b17bab/src/midpoint.h#L6)
+- Extra: Deformable objects can collide with each other -- [here](https://github.com/brown-cs-224/fem-wiedmann-trey/blob/291e7c7fc2e9689cf3da7fe0e41f2cccb1b17bab/src/collider.cpp#L14) and [here](https://github.com/brown-cs-224/fem-wiedmann-trey/blob/291e7c7fc2e9689cf3da7fe0e41f2cccb1b17bab/src/femobject.cpp#L31) and [here](https://github.com/brown-cs-224/fem-wiedmann-trey/blob/291e7c7fc2e9689cf3da7fe0e41f2cccb1b17bab/src/femobject.cpp#L128)
 
 
 ### Collaboration/References
