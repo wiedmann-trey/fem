@@ -37,4 +37,4 @@ Object
 - Multi-way deformable object collision: Deformable objects can collide with each other. To do this, meshes can have both a collider and be a deformable object. Its collider will be updated when its vertices are updated each step.
 
 ### Building + running the project
-The project can be built in Qt Creator. Open the project via the CMakeList and set the working directory to the base directory of the project. See above for info about config files, or use one provided. Pass the path to the config file as a command line argument.
+Make sure to run "git submodule update --init" after cloning. The project can be built in Qt Creator. Open the project via the CMakeList and set the working directory to the base directory of the project. See above for info about config files, or use one provided in "inis/". Pass the path to the config file as a command line argument.
