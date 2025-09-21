@@ -1,5 +1,13 @@
-## FEM
+## FEM - Finite Element Method Simulator
+This is a basic implementation of a simulator for deformable solid objects using the finite element method completed for CS2240: Advanced Computer Graphics, at Brown University. The simulator runs real-time with basic OpenGL graphics.
 
+https://github.com/user-attachments/assets/d4673c08-92a1-44c3-a3f2-dc3b84ca8978
+
+https://github.com/user-attachments/assets/d97d3dba-f687-4e11-9951-5f68fc6fb69d
+
+https://github.com/user-attachments/assets/64f90591-6480-4bbe-8281-60750db3efa4
+
+### Initialising a simulation
 A simulation is initialized using a config.ini file passed as the single command line argument. This file contains global parameters under the Global header, as well as any number of meshes. The meshes are given headers Object0, Object1, etc. Here are a list of all config parameters. See "inis/" for examples.
 
 Global
@@ -21,35 +29,12 @@ Object
 - viscosity_1 (Format: double) (Default: 100)
 - viscosity_2 (Format: double) (Default: 100)
 
-### Videos
-https://github.com/brown-cs-224/fem-wiedmann-trey/blob/master/example-video/simple_cube.mp4
+### Implementation
+- [Surface extraction](https://github.com/wiedmann-trey/fem/blob/8d34f2ff7cc44fcd9033da3c33d7489955db4480/src/extractfaces.cpp#L69): Loop every face in the mesh, maintaining a set of ones we've seen so far. If the mesh only contains a face once, it's an outside face. I also use this code to ensure that the faces for each tetrahedron point outwards.
+- [Internal Forces](https://github.com/wiedmann-trey/fem/blob/8d34f2ff7cc44fcd9033da3c33d7489955db4480/src/femobject.cpp#L160): Every deformable object is represented with a FEMObject, which provides methods to set/get the state of the object, and compute the gradient. On initialization, we assign node masses and precompute the beta matrix for each tetrahedron. Then, when the derivative is computed, for each tetrahedron, we compute the strain and stress, and accumulate the stress forces into each node, and also add gravity as well as collision forces.
+- [Collision Resolution](https://github.com/wiedmann-trey/fem/blob/8d34f2ff7cc44fcd9033da3c33d7489955db4480/src/collider.cpp#L62): I have a Collider class, which represents a mesh that objects can collide with. Each one has a method that checks whether a point collides with the mesh, and returns the penalty force for the collision. Every deformable object checks for collisions with all colliders, and applies the penalty forces.
+- [Explicit Integration](https://github.com/wiedmann-trey/fem/blob/8d34f2ff7cc44fcd9033da3c33d7489955db4480/src/midpoint.h#L6): I mantain an object called FEMSystem, which offers methods for getting/setting all object's states, as well as getting the derivative of the state. I implement the midpoint method, which is very simple to implement given these methods.
+- Multi-way deformable object collision: Deformable objects can collide with each other. To do this, meshes can have both a collider and be a deformable object. Its collider will be updated when its vertices are updated each step.
 
-https://github.com/brown-cs-224/fem-wiedmann-trey/blob/master/example-video/static_collider.mp4
-
-https://github.com/brown-cs-224/fem-wiedmann-trey/blob/master/example-video/sphere_collision.mp4
-
-https://github.com/brown-cs-224/fem-wiedmann-trey/blob/master/example-video/stack.mp4
-### Implementation Details
-
-- Surface extraction: Loop every face in the mesh, maintaining a set of ones we've seen so far. If the mesh only contains a face once, it's an outside face. I also use this code to ensure that the faces for each tetrahedron point outwards.
-- Internal Forces: Every deformable object is represented with a FEMObject, which provides methods to set/get the state of the object, and compute the gradient. On initialization, we assign node masses and precompute the beta matrix for each tetrahedron. Then, when the derivative is computed, for each tetrahedron, we compute the strain and stress, and accumulate the stress forces into each node, and also add gravity as well as collision forces.
-- Collision resolution: I have a Collider class, which represents a mesh that objects can collide with. Each one has a method that checks whether a point collides with the mesh, and returns the penalty force for the collision. Every deformable object checks for collisions with all colliders, and applies the penalty forces.
-- Explicit integration: I mantain an object called FEMSystem, which offers methods for getting/setting all object's states, as well as getting the derivative of the state. I implement the midpoint method, which is very simple to implement given these methods.
-- Extra features: For an extra feature, deformable objects can collide with each other. To do this, meshes can have both a collider and be a deformable object. Its collider will be updated when its vertices are updated each step.
-
-### Implementation Locations
-
-Please list the lines where the implementations of these features start:
-
-- [Surface extraction](https://github.com/brown-cs-224/fem-wiedmann-trey/blob/291e7c7fc2e9689cf3da7fe0e41f2cccb1b17bab/src/extractfaces.cpp#L69)
-- [Internal Forces](https://github.com/brown-cs-224/fem-wiedmann-trey/blob/291e7c7fc2e9689cf3da7fe0e41f2cccb1b17bab/src/femobject.cpp#L160)
-- [Collision Resolution](https://github.com/brown-cs-224/fem-wiedmann-trey/blob/291e7c7fc2e9689cf3da7fe0e41f2cccb1b17bab/src/collider.cpp#L62)
-- [Explicit Integration](https://github.com/brown-cs-224/fem-wiedmann-trey/blob/291e7c7fc2e9689cf3da7fe0e41f2cccb1b17bab/src/midpoint.h#L6)
-- Extra: Deformable objects can collide with each other -- [here](https://github.com/brown-cs-224/fem-wiedmann-trey/blob/291e7c7fc2e9689cf3da7fe0e41f2cccb1b17bab/src/collider.cpp#L14) and [here](https://github.com/brown-cs-224/fem-wiedmann-trey/blob/291e7c7fc2e9689cf3da7fe0e41f2cccb1b17bab/src/femobject.cpp#L31) and [here](https://github.com/brown-cs-224/fem-wiedmann-trey/blob/291e7c7fc2e9689cf3da7fe0e41f2cccb1b17bab/src/femobject.cpp#L128)
-
-
-### Collaboration/References
-Worked alone. I referenced DeepSeek for some help with Eigen, linear algebra, and general C++ syntax.
-
-### Known Bugs
-None
+### Building + running the project
+The project can be built in Qt Creator. Open the project via the CMakeList and set the working directory to the base directory of the project. See above for info about config files, or use one provided. Pass the path to the config file as a command line argument.
